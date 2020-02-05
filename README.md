@@ -1,21 +1,20 @@
 
 ## How to Run
 
-The dependency opencv4nodejs requires you to [download cmake](https://cmake.org/download/).<br />
+The dependency [opencv4nodejs](https://www.npmjs.com/package/opencv4nodejs) requires you to [download cmake](https://cmake.org/download/).<br />
+Be sure to add cmake to your environment variables.<br />
 Also, be sure to install windows build tools to compile the native Node modules.<br />
 
 Start PowerShell as Administrator and run
 
 ### `npm install --global windows-build-tools --vs2015`
 
-then install node_modules (this will take a minute...)
+Install node_modules (this will take a minute... opencv4nodejs is very large)
 
 ### `npm install`
 
-### `npm start`
+Start the server
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### `npm run server`
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+Open [http://localhost:5000](http://localhost:5000) to view it in the browser.
