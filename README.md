@@ -1,8 +1,8 @@
 
 ## How to Run
 
-The dependency opencv4nodejs requires you to [https://cmake.org/download/](download cmake).<br />
-Also, be sure to install windows build tools to compile the native Node modules.<br /> 
+The dependency opencv4nodejs requires you to [download cmake](https://cmake.org/download/).<br />
+Also, be sure to install windows build tools to compile the native Node modules.<br />
 
 Start PowerShell as Administrator and run
 
