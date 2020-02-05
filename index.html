@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <title>Pao Pao Sentry</title>
+</head>
+
+<body>
+    <div>
+        <img id="image" alt=""></img>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.dev.js"></script>
+    <script>
+        const socket = io('http://localhost:5000/')
+
+        socket.on('image', (image) => {
+            const imageElm = document.getElementById('image')
+            imageElm.src = `data:image/jpeg;base64,${image}`
+        })
+    </script>
+</body>
+
+</html>
