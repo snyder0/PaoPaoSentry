@@ -26,7 +26,7 @@ const grabFrames = (videoFile, delay, onFrame) => {
       clearInterval(intvl);
       console.log('Key pressed, exiting.');
     }
-  }, 1000 / 7);
+  }, 450);
 };
 exports.grabFrames = grabFrames;
 

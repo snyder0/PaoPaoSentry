@@ -7,7 +7,7 @@ console.log("Starting Server...")
 const app = express()
 const server = require('http').Server(app)
 const io = require('socket.io')(server)
-const { runVideoFaceDetection } = require('./common');
+const { runVideoFaceDetection } = require('./faceDetection');
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'))
@@ -26,7 +26,8 @@ function detectFaces(img) {
     return classifier.detectMultiScaleGpu(img.bgrToGray(), options).objects
 }
 
- runVideoFaceDetection(0, detectFaces, io)
+const servoControl = require("./servo")
+runVideoFaceDetection(0, detectFaces, io, servoControl)
 
 console.log('Running on ➡  http://localhost:5000/')
 server.listen(5000)
