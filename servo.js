@@ -1,8 +1,9 @@
-const { Board, Servo } = require("johnny-five")
+const { Board, Servo, Led } = require("johnny-five")
 const board = new Board()
 let degree = null
 let sweep = false
 let wait = false
+let fire = false
 
 exports.setDegree = (newDegree) => {
     degree = newDegree
@@ -14,6 +15,10 @@ exports.setSweep = (newSweep) => {
 
 exports.setStop = (newWait) => {
     wait = newWait
+}
+
+exports.setFire = (newFire) => {
+    fire = newFire
 }
 
 function getSweep() {
@@ -28,6 +33,12 @@ function getStop() {
     return w
 }
 
+function getFire() {
+    let f = fire
+    //fire = false
+    return f
+}
+
 function getDegree() {
     return degree
 }
@@ -37,16 +48,29 @@ board.on("ready", () => {
         pin: 10,
         invert: true
     })
+
+    const anode = new Led.RGB({
+        pins: {
+            red: 6,
+            green: 5,
+            blue: 3
+        },
+        isAnode: true
+    })
     servo.center()
    
     board.repl.inject({
         servo,
+        anode
     });
+
+    anode.off()
 
     setInterval(() => {
         let d = getDegree()
         let s = getSweep()
         let stop = getStop()
+        let fire = getFire()
 
         if (d === null) {
             // Do nothing on startup
@@ -62,6 +86,13 @@ board.on("ready", () => {
 
         if (stop === true) {
             servo.stop()
+        }
+
+        if (fire === true) {
+            anode.on()
+            anode.color("#FF0000")
+        } else {
+            anode.off()
         }
 
     }, 5)

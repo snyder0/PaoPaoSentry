@@ -8,7 +8,7 @@ const app = express()
 const server = require('http').Server(app)
 const io = require('socket.io')(server)
 
-const { setDegree, setSweep, setStop } = require("./servo")
+const { setDegree, setSweep, setStop, setFire } = require("./servo")
 const { runVideoFaceDetection } = require('./faceDetection');
 
 app.get('/', (req, res) => {
@@ -17,6 +17,15 @@ app.get('/', (req, res) => {
 
 io.sockets.on('connection', (socket) => {
     console.log(`${socket.id} is connected`)
+
+    socket.on('degree', (newDegree) => {
+        let degree = (newDegree.x / 1500) * 180
+        setDegree(degree)
+    })
+
+    socket.on('fire', (fire) => {
+        setFire(fire)
+    })
 
     socket.on('sweep', (sweep) => {
         setSweep(sweep)
@@ -41,7 +50,7 @@ function detectFaces(img) {
     return classifier.detectMultiScaleGpu(img.bgrToGray(), options).objects
 }
 
-//runVideoFaceDetection(0, detectFaces, io, servoControl)
+runVideoFaceDetection(0, detectFaces, io, setDegree)
 
 console.log('Running on ➡  http://localhost:5000/')
 server.listen(5000)

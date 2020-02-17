@@ -12,17 +12,35 @@
 <body>
     <div>
         <img id="image" alt=""></img>
-        <button onclick="sweep()">Sweep</button>
-        <button onclick="stop()">Stop</button>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.dev.js"></script>
     <script>
         const socket = io.connect('http://localhost:5000/')
+        const image = document.getElementById('image')
+        let fire = false
+        let degree = {}
+
+        image.onmousemove = (e) => {
+            var X = (e.pageX - image.offsetLeft)
+            var Y = (e.pageY - image.offsetTop)
+            setDegree(X, Y)
+            // console.log('X: ' + X + ', Y: ' + Y);
+        }
+
+        image.onmousedown = () => {
+            fire = !fire
+            console.log(fire)
+            socket.emit('fire', fire)
+        }
 
         socket.on('image', (image) => {
             const imageElm = document.getElementById('image')
             imageElm.src = `data:image/jpeg;base64,${image}`
         })
+
+        function setDegree(x, y) {
+            socket.emit('degree', { x: x, y: y })
+        }
 
         function sweep() {
             socket.emit('sweep', true)
@@ -31,7 +49,6 @@
         function stop() {
             socket.emit('stop', true)
         }
-
 
     </script>
 </body>

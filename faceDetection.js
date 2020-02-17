@@ -17,7 +17,7 @@ exports.runVideoFaceDetection = (camSrc, detectFaces, io, setDegree) => {
     let degree = faceRects[0] ? ((faceRects[0].x / width) * 180) : ''
     // console.log(Math.round(degree) + " degrees")
 
-    setDegree(Math.round(degree))
+    //setDegree(Math.round(degree))
 
     if (faceRects.length) {
 
