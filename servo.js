@@ -1,9 +1,31 @@
 const { Board, Servo } = require("johnny-five")
 const board = new Board()
-let degree = 90
+let degree = null
+let sweep = false
+let wait = false
 
-function ServoControl(newDegree) {
+exports.setDegree = (newDegree) => {
     degree = newDegree
+}
+
+exports.setSweep = (newSweep) => {
+    sweep = newSweep
+}
+
+exports.setStop = (newWait) => {
+    wait = newWait
+}
+
+function getSweep() {
+    let s = sweep
+    sweep = false
+    return s
+}
+
+function getStop() {
+    let w = wait
+    wait = false
+    return w
 }
 
 function getDegree() {
@@ -23,11 +45,25 @@ board.on("ready", () => {
 
     setInterval(() => {
         let d = getDegree()
-        if (d == 0) {
+        let s = getSweep()
+        let stop = getStop()
+
+        if (d === null) {
+            // Do nothing on startup
+        } else if (d === 0) {
             // hold position
         } else {
             servo.to(d)
         }
+
+        if (s === true) {
+            servo.sweep()
+        }
+
+        if (stop === true) {
+            servo.stop()
+        }
+
     }, 5)
 
     // Servo alternate constructor with options
@@ -80,5 +116,3 @@ board.on("ready", () => {
 
     // servo.sweep();
 });
-
-module.exports = ServoControl

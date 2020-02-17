@@ -12,15 +12,27 @@
 <body>
     <div>
         <img id="image" alt=""></img>
+        <button onclick="sweep()">Sweep</button>
+        <button onclick="stop()">Stop</button>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.dev.js"></script>
     <script>
-        const socket = io('http://localhost:5000/')
+        const socket = io.connect('http://localhost:5000/')
 
         socket.on('image', (image) => {
             const imageElm = document.getElementById('image')
             imageElm.src = `data:image/jpeg;base64,${image}`
         })
+
+        function sweep() {
+            socket.emit('sweep', true)
+        }
+
+        function stop() {
+            socket.emit('stop', true)
+        }
+
+
     </script>
 </body>
 
