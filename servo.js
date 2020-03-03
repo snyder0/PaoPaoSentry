@@ -1,21 +1,21 @@
 const { Board, Servo, Led } = require("johnny-five")
 const board = new Board()
-let degree = null
+let panDegree = null
 let tiltDegree = null
-let sweep = false
+let center = false
 let wait = false
 let fire = false
 
-exports.setDegree = (newDegree) => {
-    degree = newDegree
+exports.setPanDegree = (newDegree) => {
+    panDegree = newDegree
 }
 
 exports.setTiltDegree = (newDegree) => {
     tiltDegree = newDegree
 }
 
-exports.setSweep = (newSweep) => {
-    sweep = newSweep
+exports.setCenter = (newCenter) => {
+    center = newCenter
 }
 
 exports.setStop = (newWait) => {
@@ -26,10 +26,10 @@ exports.setFire = (newFire) => {
     fire = newFire
 }
 
-function getSweep() {
-    let s = sweep
-    sweep = false
-    return s
+function getCenter() {
+    let c = center
+    center = false
+    return c
 }
 
 function getStop() {
@@ -44,8 +44,8 @@ function getFire() {
     return f
 }
 
-function getDegree() {
-    return degree
+function getPanDegree() {
+    return panDegree
 }
 
 function getTiltDegree() {
@@ -84,9 +84,9 @@ board.on("ready", () => {
     anode.off()
 
     setInterval(() => {
-        let dPan = getDegree()
+        let dPan = getPanDegree()
         let dTilt = getTiltDegree()
-        let s = getSweep()
+        let c = getCenter()
         let stop = getStop()
         let fire = getFire()
 
@@ -106,8 +106,9 @@ board.on("ready", () => {
             servoTilt.to(dTilt)
         }
 
-        if (s === true) {
-            servoPan.sweep()
+        if (c === true) {
+            servoPan.to(90)
+            servoTilt.to(90)
         }
 
         if (stop === true) {

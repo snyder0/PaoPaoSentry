@@ -4,34 +4,41 @@
 <head>
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
     <meta name="theme-color" content="#000000" />
     <title>Pao Pao Sentry</title>
 </head>
 
-<body>
-    <div>
+<body onload="init();">
+    <div class="App">
         <img id="image" alt=""></img>
+        <canvas id="joystick" height="300" width="300"></canvas>
+        <button id="fire" onclick="openFire()">Fire</button>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.dev.js"></script>
+    <script src="https://code.createjs.com/1.0.0/createjs.min.js"></script>
+    <script src="https://hammerjs.github.io/dist/hammer.js"></script>
     <script>
         // Change socket connection to server private IP
-        const socket = io.connect('http://localhost:5000/')
+        const socket = io.connect('http://192.168.0.11:5000/')
         const image = document.getElementById('image')
+        let fireButton = document.getElementById('fire')
         let fire = false
         let degree = {}
 
         image.onmousemove = (e) => {
-            var X = (e.pageX - image.offsetLeft)
-            var Y = (e.pageY - image.offsetTop)
+            var X = (e.pageX - image.offsetLeft + 1) / 965
+            var Y = (e.pageY - image.offsetTop + 1) / 725
             setDegree(X, Y)
-            // console.log('X: ' + X + ', Y: ' + Y);
+            console.log('X: ' + (X * 180) + ', Y: ' + (Y * 180));
         }
 
         image.onmousedown = () => {
-            fire = !fire
-            console.log(fire)
-            socket.emit('fire', fire)
+            openFire()
+        }
+
+        image.onmouseleave = () => {
+            center()
         }
 
         socket.on('image', (image) => {
@@ -43,8 +50,13 @@
             socket.emit('degree', { x: x, y: y })
         }
 
-        function sweep() {
-            socket.emit('sweep', true)
+        function openFire() {
+            fire = !fire
+            socket.emit('fire', fire)
+        }
+
+        function center() {
+            setDegree(0.5, 0.55)
         }
 
         function stop() {
@@ -52,6 +64,150 @@
         }
 
     </script>
+    <script>
+
+        function init() {
+            var xCenter = 150;
+            var yCenter = 150;
+            var stage = new createjs.Stage('joystick');
+
+            var psp = new createjs.Shape();
+            psp.graphics.beginFill('#333333').drawCircle(xCenter, yCenter, 50);
+
+            psp.alpha = 0.25;
+
+            stage.addChild(psp);
+            createjs.Ticker.framerate = 60;
+            createjs.Ticker.addEventListener('tick', stage);
+            stage.update();
+
+            var joystick = document.querySelector('#joystick')
+
+            var mc = new Hammer(joystick);
+
+            mc.on("panstart", function (ev) {
+                var pos = joystick.getBoundingClientRect();
+                xCenter = psp.x;
+                yCenter = psp.y;
+                psp.alpha = 0.5;
+
+                stage.update();
+            });
+
+
+            mc.on("panmove", function (ev) {
+                var pos = joystick.getBoundingClientRect();
+
+                var x = (ev.center.x - pos.left);
+                var y = (ev.center.y - pos.top - 180) * -1;
+             
+
+                if (x > 180) {
+                    x = 180;
+                }
+                if (y > 180) {
+                    y = 180;
+                }
+
+                if (x < 0) {
+                    x = 0;
+                }
+                if (y < 0) {
+                    y = 0;
+                }
+
+                // console.log('X: ' + x);
+                // console.log('Y: ' + y);
+                x /= 180;
+                y /= 180;
+                setDegree(x, y);
+
+                var coords = calculateCoords(ev.angle, ev.distance);
+
+                psp.x = coords.x;
+                psp.y = coords.y;
+
+                psp.alpha = 0.5;
+
+                stage.update();
+            });
+
+            mc.on("panend", function (ev) {
+                psp.alpha = 0.25;
+                createjs.Tween.get(psp).to({ x: xCenter, y: yCenter }, 750, createjs.Ease.elasticOut);
+                //center()
+            });
+        }
+
+        function calculateCoords(angle, distance) {
+            var coords = {};
+            distance = Math.min(distance, 100);
+            var rads = (angle * Math.PI) / 180.0;
+
+            coords.x = distance * Math.cos(rads);
+            coords.y = distance * Math.sin(rads);
+
+            return coords;
+        }
+
+    </script>
+    <style>
+        .App {
+            text-align: center;
+        }
+
+        body {
+            overflow: hidden;
+            height: 100%;
+            width: 100%;
+            background-color: #ffffff;
+        }
+
+        #image {
+            height: 100vh;
+            width: auto;
+            cursor: crosshair;
+        }
+
+        #fire {
+            height: 100px;
+            width: 100px;
+            float: right;
+            margin-top: 60vh;
+            margin-right: 5vh;
+            background-color: #ff6961;
+        }
+
+        .space-top {
+            padding-top: 10px;
+        }
+
+        #joystick {
+            height: 180px;
+            width: 180px;
+            border-radius: 300px;
+            -moz-border-radius: 300px;
+            -webkit-border-radius: 300px;
+            text-align: center;
+            background-color: #61d4dd;
+            font: 24px/300px Helvetica, Arial, sans-serif;
+            cursor: crosshair;
+            user-select: none;
+            float: left;
+            margin-top: 50vh;
+            margin-left: 1vh;
+            z-index: 1000;
+        }
+
+        .noselect {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+    </style>
 </body>
 
 </html>
